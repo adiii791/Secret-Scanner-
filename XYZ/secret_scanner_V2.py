@@ -126,6 +126,26 @@ def scan_for_secrets(code):
     "risk_score": risk_score,
     "risk_level": "CRITICAL" if risk_score >= 20 else "HIGH" if risk_score >= 10 else "MEDIUM" if risk_score >= 5 else "LOW"
 }
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+import os
+
+app = Flask(__name__)
+CORS(app)
+
+@app.route("/")
+def home():
+    return {"status": "API running"}
+
+@app.route("/scan", methods=["POST"])
+def scan():
+    data = request.json
+    return jsonify({"message": "scan ok", "data": data})
+
+if __name__ == "__main__":
+    port = int(os.environ.get("PORT", 8080))
+    app.run(host="0.0.0.0", port=port)
+
 
 # this route is api document of the scanner for the user like guidlines how to use this api and json response
 @app.route('/docs')
@@ -387,3 +407,4 @@ if __name__ == '__main__':
     print(f"🚀 Starting Secret Scanner API v2.0")
     print(f"📍 Running on port {port}")
     app.run(host='0.0.0.0', port=port, debug=False)
+
