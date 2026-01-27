@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ABC1234XYZ"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-SLFNYDEWX1');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        SecretScanner- Stop Leaking Secrets Before It's Too Late
+    </title>
+    <meta name="description" content="Free API to detect exposed passwords, API keys, and tokens in your code. Built for developers who care about security.">
+    <meta name="keywords" content="secret scanner, security, API, DevSecOps, code security">
+
+    <!-- Open Graph for social sharing -->
+    <!-- When link shares external platform title will be this line  -->
+    <meta property="og:title" content="SecretScanner - Free Security API">
+    <!-- When link shares external platform description will be this line  -->
+    <meta property="og:description" content="Scan your code for exposed secrets in seconds">
+    <!-- When link shares external platform type will be this line  -->
+    <meta property="og:type" content="website">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav class="navbar">
+        <!-- Keep Nav content centered within max width-->
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">
+                    <span class="logo-icon">🔐</span>
+                    <span class="logo-text"><b>Secret Scanner</b></span>
+
+                </div>
+
+               <div class="nav-links">
+                   <a href="#home">Home</a>
+                   <a href="#features">Features</a>
+                   <a href="#demo">Demo</a>
+                   <a href="#pricing">Pricing</a>
+                   <a href="https://adiii.pythonanywhere.com/docs" target="_blank" class="btn-outline">API Docs</a>
+                </div>
+
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION - First thing people see -->
+    <!-- The first content that user will see-->
+    <section id="home" class="hero">
+        <!-- Keep Hero content centered within max width-->
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <!-- Provide Visual indicator-->
+                    <span class="badge-dot"></span>
+                    Free & Open Source
+                </div>
+
+                <h1 class="hero-title">
+                    Stop Leaking Secrets.<br>
+                    <span class="gradient-text">Ship Secure Code.</span>
+                </h1>
+
+                <p class="hero-subtitle">
+                    Free API that scans your code for exposed passwords, API keys, and tokens in seconds. 
+                    Built by developers, for developers.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="#demo" class="btn-primary">
+                        Try live Demo
+                        <span class="btn-arrow">→</span>
+                    </a>
+                    <a href="https://adiii.pythonanywhere.com/docs" target="_blank" class="btn-secondary">
+                         View Documentation
+                    </a>
+                </div>
+
+
+                <!-- Live Stats - pulls from your API -->
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" id="secrets-prevented">1,247</div>
+                        <div class="stat-label">Secrets Prevented</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-scans">89</div>
+                        <div class="stat-label">Scans Today</div>
+                    </div>
+                     <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Animated background gradient -->
+        <div class="hero-gradient"></div>
+
+    </section>
+
+    <!-- LIVE DEMO SECTION - This is where magic happens! -->
+    <section id="demo" class="demo-section">
+        <div class="container">
+            <div class="section-header">
+                 <h2>Try It Now - See Results Instantly</h2>
+                <p>Paste your code below and watch our API detect exposed secrets in real-time</p>
+            </div>
+            
+            <div class="demo-container">
+                <div class="demo-input">
+                    <div class="demo-header">
+                        <span class="demo-title">📝 Your Code</span>
+                        <button class="demo-example-btn" onclick="loadExample()">Load Example</button>
+                    </div>
+                    <textarea 
+                        id="code-input" 
+                        class="code-textarea" 
+                        placeholder="# Paste your code here
+                    password = 'secret123'
+                    api_key = 'sk-1234567890abcdef'
+                    db_url = 'mongodb://admin:pass@localhost'"
+                        rows="15"
+                    ></textarea>
+                    <button class="scan-button" onclick="scanCode()">
+                        <span id="scan-text">🔍 Scan for Secrets</span>
+                        <span id="scan-loading" class="hidden">⏳ Scanning...</span>
+                    </button>
+                </div>
+
+                <div class="demo-results">
+                    <div class="demo-header">
+                        <span class="demo-title">📊 Results</span>
+                    </div>
+                    <div id="results-container" class="results-container">
+                        <div class="results-empty">
+                            <div class="empty-icon">🔍</div>
+                            <p>Paste code and click "Scan" to see results</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GITHUB INTEGRATION TEASER -->
+    <section class="integration-section">
+        <div class="container">
+            <div class="integration-card">
+                <div class="integration-icon">🔗</div>
+                <h3> Coming Soon: GitHub Integration </h3>
+                <p> Automatically scan every commit. Get notified before secrets reach production.</p>
+                <button class="btn-waitlist" onclick="joinWaitlist('github')">
+                    Join Waitlist
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- FEATURES SECTION -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>What We Detect</h2>
+                <p>Comprehensive secret detection across multiple categories</p>
+            </div>
+            
+            <div class="features-grid"></div>
+            <div class="feature-card">
+                <div class="feature-icon">🔑</div>
+                <h3>API Keys</h3>
+                <p>AWS, Google Cloud, Azure, Stripe, and more</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">📧</div>
+                <h3>Passwords & Emails</h3>
+                <p>Hardcoded credentials and authentication data</p>
+            </div>
+
+            <div class="feature-card">
+                    <div class="feature-icon">🔐</div>
+                    <h3>JWT Tokens</h3>
+                    <p>JSON Web Tokens and session identifiers</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💾</div>
+                    <h3>Database URLs</h3>
+                    <p>MongoDB, PostgreSQL, MySQL connection strings</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Private Keys</h3>
+                    <p>RSA, SSH, and PGP private keys</p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="feature-icon">⚙️</div>
+                    <h3>Cloud Credentials</h3>
+                    <p>AWS, GCP, Azure access tokens</p>
+                </div>
+            </div>
+
+            <!-- Additional features -->
+            <div class="features-list">
+                <div class="feature-item">
+                    <span class="checkmark">✓</span>
+                    <span>Severity Classification (Critical, High, Medium, Low)</span>
+                </div>
+            </div>
+            <div class="feature-item">
+                    <span class="checkmark">✓</span>
+                    <span>Line-by-line Analysis</span>
+            </div>
+            <div class="feature-item">
+                    <span class="checkmark">✓</span>
+                    <span>Auto-fix Recommendations</span>
+            </div>
+            <div class="feature-item">
+                <span class="checkmark">✓</span>
+                <span>Security Score (0-100)</span>
+            </div>
+            </div>
+        </div>
+            
+    </section>
+
+    <!-- HOW IT WORKS SECTION -->
+    <section class="how-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>How It Works</h2>
+                <p>Simple API integration in 3 steps</p>
+            </div>
+
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1.</div>
+                    <h3>Send Code to API</h3>
+                    <p>POST your code to our endpoint</p>
+                </div>
+
+                <div class="step-arrow">→</div>
+
+                <div class="step-card">
+                    <div class="step-number">2.</div>
+                    <h3>We Scan & Analyze</h3>
+                    <p>AI-powered pattern matching</p>
+                </div>
+
+                <div class="step-arrow">→</div>
+                
+                <div class="step-card">
+                    <div class="step-number">3.</div>
+                    <h3>Get Results</h3>
+                    <p>Detailed report with fixes</p>
+                </div>
+            </div>
+            
+            <!-- Code example -->
+             <div class="code-example">
+                <div class="code-header">
+                    <span>📟 API Example</span>
+                    <button class="copy-btn" onclick="copyCode()">Copy</button>
+                </div>
+                 <pre><code id="api-example">curl -X POST https://adiii.pythonanywhere.com/scan \
+  -H "Content-Type: application/json" \
+  -d '{"code": "password = \"secret123\""}'
+
+# Response:
+{
+  "secrets_found": 1,
+  "security_score": 60,
+  "details": [{
+    "type": "password",
+    "line": 1,
+    "severity": "CRITICAL"
+  }]
+}</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- PRICING SECTION -->
+    <section id="pricing" class="pricing-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Simple, Transparent Pricing</h2>
+                <p>Start free, upgrade when you need more</p>
+            </div>
+
+            <div class="pricing-grid">
+                <!-- Free Tier -->
+                <div class="pricing-card">
+                    <div class="pricing-header">
+                        <h3>Free</h3>
+                        <div class="price">
+                            <span class="price-amount">₹0</span>
+                            <span class="price-period">/-</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span> Unlimited scans</li>
+                        <li><span class="check">✓</span> All secret types</li>
+                        <li><span class="check">✓</span> API access</li>
+                        <li><span class="check">✓</span> Community support</li>
+                        <li><span class="cross">✗</span> Priority support</li>
+                        <li><span class="cross">✗</span> Slack integration</li>
+                    </ul>
+                    <a href="https://adiii.pythonanywhere.com/docs" class="pricing-btn">Get Started</a>
+                </div>
+
+                <!-- Premium Tier (Coming Soon) -->
+                <div class="pricing-card featured">
+                    <div class="popular-badge">Coming Soon</div>
+                    <div class="pricing-header">
+                        <h3>Premium</h3>
+                        <div class="price">
+                            <span class="price-amount">₹299</span>
+                            <span class="price-period">/month</span>
+                        </div>
+                    </div>
+                    <ul class="pricing-features">
+                        <li><span class="check">✓</span> Everything in Free</li>
+                        <li><span class="check">✓</span> Priority API support</li>
+                        <li><span class="check">✓</span> Slack notifications</li>
+                        <li><span class="check">✓</span> Custom rules</li>
+                        <li><span class="check">✓</span> Compliance reports</li>
+                        <li><span class="check">✓</span> Team dashboard</li>
+                    </ul>
+                    <button class="pricing-btn" onclick="notifyMe()">Notify Me</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- USE CASES SECTION -->
+    <section class="usecases-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Perfect For</h2>
+            </div>
+
+            <div class="usecases-grid">
+                <div class="usecase-card">
+                    <div class="usecase-icon">👨‍💻</div>
+                    <h3>Freelance Developers</h3>
+                    <p>Scan code before delivering to clients. Prevent embarrassing security leaks.</p>
+                </div>
+
+                <div class="usecase-card">
+                    <div class="usecase-icon">🚀</div>
+                    <h3>Startup Teams</h3>
+                    <p>Enterprise-grade security on a bootstrap budget. Ship fast without compromising.</p>
+                </div>
+
+                <div class="usecase-card">
+                    <div class="usecase-icon">🎓</div>
+                    <h3>Students & Learners</h3>
+                    <p>Learn DevSecOps best practices. Build secure code from day one.</p>
+                </div>
+
+                <div class="usecase-card">
+                    <div class="usecase-icon">🏢</div>
+                    <h3>Dev Agencies</h3>
+                    <p>Protect multiple client projects. Automated security checks in your workflow.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Secure Your Code?</h2>
+                <p>Join developers who are already shipping more secure code</p>
+                <div class="cta-buttons">
+                    <a href="#demo" class="btn-primary-large">Try Free Demo</a>
+                    <a href="https://adiii.pythonanywhere.com/docs" class="btn-secondary-large">Read Documentation</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <span class="logo-icon">🔐</span>
+                        <span class="logo-text">SecretScanner</span>
+                    </div>
+                    <p class="footer-tagline">Built with ❤️ by Adesh Gore<br>BCA Student Specialization in Cloud and Cyber Security</p>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Product</h4>
+                        <a href="#features">Features</a>
+                        <a href="#demo">Demo</a>
+                        <a href="#pricing">Pricing</a>
+                        <a href="https://adiii.pythonanywhere.com/docs">API Docs</a>
+                    </div>
+
+                    <div class="footer-column">
+                        <h4>Connect</h4>
+                        <a href="https://github.com/adiii791" target="_blank">GitHub</a>
+                        <a href="https://www.linkedin.com/in/aadesh-gore-787299287/" target="_blank">LinkedIn</a>
+                        <a href="https://x.com/aadesh_gore" target="_blank">Twitter</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© 2026 SecretScanner. Made in India 🇮🇳</p>
+                <p class="api-status">
+                    <span class="status-dot"></span>
+                    API Status: <span id="api-status">Checking...</span>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
+
+    
+
+   
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
