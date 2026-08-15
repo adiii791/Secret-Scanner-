@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<title>Sign in</title>
+
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="css/Login.css">
+</head>
+<body>
+
+<div class="screen">
+
+  <div class="panel" id="panel" data-mode="login">
+    <div class="tabs">
+      <button class="tab active" id="tabLogin" type="button">Log in</button>
+      <button class="tab" id="tabSignup" type="button">Create account</button>
+    </div>
+
+    <h2 id="heading">Welcome back</h2>
+    <p class="sub" id="subheading">Log in to continue to your dashboard.</p>
+
+    <form id="authForm">
+      <div class="field name-field">
+        <label for="name">Full name</label>
+        <input type="text" id="name" placeholder="Your full name">
+      </div>
+      <div class="field">
+        <label for="email">Email</label>
+        <input type="email" id="email" placeholder="you@example.com" required>
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password" required>
+      </div>
+      <div class="field confirm">
+        <label for="confirm">Confirm password</label>
+        <input type="password" id="confirm" placeholder="Re-enter your password">
+      </div>
+
+      <div class="row-between login-only">
+        <label class="checkbox"><input type="checkbox"> Remember me</label>
+        <a href="#">Forgot password?</a>
+      </div>
+
+
+      <button type="submit" class="btn-primary" id="submitBtn">Log in</button>
+    </form>
+
+    <div class="divider">or continue with</div>
+
+    <div class="social-grid">
+      <button class="social-btn" type="button" aria-label="Continue with Google">
+        <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M23.49 12.27c0-.79-.07-1.54-.2-2.27H12v4.51h6.47c-.28 1.48-1.13 2.73-2.41 3.58v2.98h3.86c2.26-2.09 3.57-5.17 3.57-8.8z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.92l-3.86-2.98c-1.07.72-2.45 1.15-4.07 1.15-3.13 0-5.78-2.11-6.73-4.96H1.27v3.09C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.27 14.29c-.24-.72-.38-1.49-.38-2.29s.14-1.57.38-2.29V6.62H1.27A11.95 11.95 0 0 0 0 12c0 1.93.46 3.76 1.27 5.38l4-3.09z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.27 6.62l4 3.09c.95-2.85 3.6-4.96 6.73-4.96z"/></svg>
+      </button>
+      <button class="social-btn" type="button" aria-label="Continue with Facebook">
+        <svg viewBox="0 0 24 24"><path fill="#1877F2" d="M24 12.07C24 5.4 18.63 0 12 0S0 5.4 0 12.07c0 5.99 4.39 10.96 10.13 11.86v-8.4H7.08v-3.46h3.05V9.41c0-3.02 1.8-4.69 4.55-4.69 1.32 0 2.7.24 2.7.24v2.97h-1.52c-1.5 0-1.97.93-1.97 1.89v2.25h3.36l-.54 3.46h-2.82v8.4C19.61 23.03 24 18.06 24 12.07z"/></svg>
+      </button>
+      <button class="social-btn" type="button" aria-label="Continue with GitHub">
+        <svg viewBox="0 0 24 24"><path fill="#181717" d="M12 0C5.37 0 0 5.5 0 12.3c0 5.43 3.44 10.04 8.21 11.67.6.11.82-.27.82-.59 0-.29-.01-1.27-.02-2.3-3.34.74-4.04-1.5-4.04-1.5-.55-1.42-1.34-1.8-1.34-1.8-1.09-.77.08-.75.08-.75 1.2.09 1.84 1.27 1.84 1.27 1.07 1.88 2.8 1.34 3.49 1.02.11-.79.42-1.34.76-1.65-2.67-.31-5.47-1.38-5.47-6.13 0-1.36.47-2.46 1.25-3.33-.12-.31-.55-1.58.12-3.3 0 0 1.02-.33 3.35 1.26a11.4 11.4 0 0 1 6.1 0c2.33-1.6 3.35-1.26 3.35-1.26.67 1.72.24 2.99.12 3.3.78.87 1.25 1.97 1.25 3.33 0 4.76-2.81 5.82-5.48 6.13.43.38.81 1.13.81 2.28 0 1.65-.01 2.98-.01 3.39 0 .32.22.71.83.59C20.56 22.33 24 17.72 24 12.3 24 5.5 18.63 0 12 0z"/></svg>
+      </button>
+    </div>
+
+    <p class="switch-line login-only">Don't have an account? <button type="button" id="toSignup">Create one</button></p>
+    <p class="switch-line signup-line" style="display:none;">Already have an account? <button type="button" id="toLogin">Log in</button></p>
+  </div>
+
+</div>
+<script src="js/Login.js"></script>
+
+
+
+</body>
+</html>
