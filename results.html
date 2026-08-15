@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>SecretScan - Scan Result</title>
+    <link rel="stylesheet" href="css/results.css">
+</head>
+<body>
+    <div class="app">
+
+        <aside class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <div class="logo-text">SecretScan</div>
+            </div>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li>
+                        <a href="index.html" class="nav-item">
+                            <div class="nav-icon dashboard-icon"></div>
+                            <div class="nav-label">Dashboard</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.html#history" class="nav-item active">
+                            <div class="nav-icon scans-icon"></div>
+                            <div class="nav-label">Scans</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="index.html#reports" class="nav-item">
+                            <div class="nav-icon secret-icon"></div>
+                            <div class="nav-label">Secret</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="profile.html" class="nav-item">
+                            <div class="nav-icon policies-icon"></div>
+                            <div class="nav-label">Policies</div>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="profile.html" class="nav-item">
+                            <div class="nav-icon settings-icon"></div>
+                            <div class="nav-label">Settings</div>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+        </aside>
+
+        <div class="main-wrapper">
+
+            <header class="top-nav">
+                <div class="breadcrumb">
+                    <a href="index.html#history">Scans</a>
+                    <div class="breadcrumb-sep">/</div>
+                    <div class="breadcrumb-current">Scan Result</div>
+                </div>
+                <div class="top-actions">
+                    <a href="index.html#reports" class="top-link">Report</a>
+                    <a href="#findingsList" class="top-link">Vulnerabilities</a>
+                    <button class="theme-toggle" id="themeToggle" title="Toggle theme"></button>
+                    <button class="icon-btn notification-btn" title="Notifications"></button>
+                    <button class="icon-btn profile-btn" title="Profile"></button>
+                </div>
+            </header>
+
+
+            <section class="main-content">
+                <div class="page-header">
+                    <h1 class="page-title">Scan complete</h1>
+                    <div class="completed-badge">
+                        <div class="badge-check"></div>
+                        Completed
+                    </div>
+                </div>
+
+
+                <div class="stats-row">
+
+                    <article class="stat-card health-score-card">
+                        <h3 class="card-label">Security Health Score</h3>
+                        <div class="score-circle-wrapper">
+                            <div class="score-circle" id="scoreCircle">
+                                <div class="score-inner">
+                                    <div class="score-number" id="scoreNumber">0</div>
+                                    <div class="score-status">SAFE</div>
+                                </div>
+                            </div>
+                        </div>
+                    </article>
+
+
+                    <div class="stats-right">
+                        <div class="stats-top-row">
+                            <article class="stat-card small-card">
+                                <div class="stat-icon secrets-icon"></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="totalSecrets">0</div>
+                                    <div class="stat-label">Total secrets found</div>
+                                </div>
+                            </article>
+                            <article class="stat-card small-card">
+                                <div class="stat-icon critical-icon"></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="criticalCount">0</div>
+                                    <div class="stat-label">Critical count</div>
+                                </div>
+                            </article>
+                        </div>
+                        <div class="stats-bottom-row">
+                            <article class="stat-card small-card">
+                                <div class="stat-icon high-icon"></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="highCount">0</div>
+                                    <div class="stat-label">High count</div>
+                                </div>
+                            </article>
+                            <article class="stat-card small-card">
+                                <div class="stat-icon medium-icon"></div>
+                                <div class="stat-info">
+                                    <div class="stat-value" id="mediumCount">0</div>
+                                    <div class="stat-label">Medium / Low count</div>
+                                </div>
+                            </article>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="findings-section">
+                    <div class="findings-header">
+                     <div class="findings-icon"></div>
+                        <h2 class="findings-title">Detailed Findings</h2>
+                    </div>
+                    <div class="findings-list" id="findingsList">
+
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script src="js/results.js"></script>
+</body>
+</html>
