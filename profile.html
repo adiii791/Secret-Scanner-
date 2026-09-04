@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Secret Scanner | Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"><link rel="stylesheet" href="css/profile.css">
+</head>
+<body>
+<aside class="sidebar">
+<a class="brand" href="index.html"><div class="brand-mark"><i class="fa-solid fa-shield-halved"></i><span></span></div><div><strong>Secret Scanner</strong><small>SECURITY PLATFORM</small></div></a>
+<nav><p>WORKSPACE</p><a href="index.html"><i class="fa-solid fa-grid-2"></i>Dashboard</a><a href="index.html#history"><i class="fa-solid fa-clock-rotate-left"></i>Scan History</a><a href="index.html#reports"><i class="fa-solid fa-file-shield"></i>Reports</a><p>MANAGE</p><a class="active" href="profile.html"><i class="fa-solid fa-user-gear"></i>Profile</a><a href="profile.html"><i class="fa-solid fa-sliders"></i>Settings</a></nav>
+<div class="sidebar-bottom"><div class="security-mini"><i class="fa-solid fa-shield-check"></i><span>Workspace secure</span><b></b></div><button id="themeBtn"><i class="fa-solid fa-moon"></i> Dark mode</button><button id="logoutBtn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button></div>
+</aside>
+<main class="main">
+<header class="topbar"><div><span class="eyebrow">ACCOUNT</span><h1>Profile & settings</h1><p>Manage your identity, security preferences and connected services.</p></div><a class="back-btn" href="index.html"><i class="fa-solid fa-arrow-left"></i> Back to dashboard</a></header>
+
+<section class="profile-hero">
+<div class="avatar-wrap"><div class="profile-avatar" id="profileAvatar">SG</div><button id="avatarBtn" title="Change avatar"><i class="fa-solid fa-camera"></i></button></div>
+<div class="hero-info"><span class="online-pill"><i></i> Account active</span><h2 id="heroName">Saloni Gutalkar</h2><p>Administrator • Secret Scanner Workspace</p><div class="hero-meta"><span><i class="fa-regular fa-envelope"></i> saloni@gmail.com</span><span><i class="fa-regular fa-calendar"></i> Joined July 2026</span></div></div>
+<button class="primary-btn" id="editBtn"><i class="fa-solid fa-pen"></i> Edit profile</button>
+</section>
+
+<section class="stats"><article><i class="fa-solid fa-radar"></i><span>Scans completed</span><b>128</b></article><article><i class="fa-solid fa-key"></i><span>Secrets found</span><b>342</b></article><article><i class="fa-solid fa-shield"></i><span>Security score</span><b>96%</b></article><article><i class="fa-solid fa-code-branch"></i><span>Repositories</span><b>12</b></article></section>
+
+<div class="content-grid">
+<section class="card"><div class="card-head"><div><span class="eyebrow">PERSONAL INFORMATION</span><h3>Account details</h3></div><button class="small-btn" id="editDetails">Edit</button></div>
+<div class="form-grid"><label>Full name<input id="nameInput" value="Saloni Gutalkar" disabled></label><label>Email address<input value="saloni@gmail.com" disabled></label><label>Role<input value="Administrator" disabled></label><label>Workspace<input value="Secret Scanner Pro" disabled></label><label>Phone number<input value="+91 98••••••21" disabled></label><label>Timezone<input value="Asia/Kolkata (IST)" disabled></label></div><div class="save-row" id="saveRow"><button class="primary-btn" id="saveBtn">Save changes</button><button class="cancel-btn" id="cancelBtn">Cancel</button></div></section>
+
+<section class="card"><div class="card-head"><div><span class="eyebrow">SECURITY</span><h3>Account protection</h3></div><span class="secure-label"><i class="fa-solid fa-shield-check"></i> Strong</span></div>
+<div class="security-item"><div class="setting-icon green"><i class="fa-solid fa-lock"></i></div><div><b>Password</b><p>Last changed 12 days ago</p></div><button class="outline-btn" id="passwordBtn">Change</button></div>
+<div class="security-item"><div class="setting-icon blue"><i class="fa-solid fa-mobile-screen"></i></div><div><b>Two-factor authentication</b><p>Authenticator app is enabled</p></div><label class="switch"><input type="checkbox" checked><span></span></label></div>
+<div class="security-item"><div class="setting-icon purple"><i class="fa-solid fa-key"></i></div><div><b>Recovery codes</b><p>8 unused recovery codes</p></div><button class="outline-btn">View</button></div>
+</section>
+
+<section class="card"><div class="card-head"><div><span class="eyebrow">CONNECTED SERVICES</span><h3>Integrations</h3></div></div>
+<div class="connected"><div class="service"><i class="fa-brands fa-github"></i><div><b>GitHub</b><p>Connected • 12 repositories</p></div></div><span>Connected</span></div>
+<div class="connected"><div class="service"><i class="fa-brands fa-gitlab"></i><div><b>GitLab</b><p>Connected • 3 projects</p></div></div><span>Connected</span></div>
+<div class="connected"><div class="service"><i class="fa-solid fa-cloud"></i><div><b>AWS</b><p>Security scanning integration</p></div></div><button class="outline-btn">Manage</button></div>
+</section>
+
+<section class="card"><div class="card-head"><div><span class="eyebrow">RECENT ACTIVITY</span><h3>Account activity</h3></div><button class="small-btn">View all</button></div>
+<ul class="activity"><li><i class="fa-solid fa-shield-check green-text"></i><div><b>Security scan completed</b><p>Banking API • 2 minutes ago</p></div><span>96%</span></li><li><i class="fa-solid fa-user-pen blue-text"></i><div><b>Profile settings updated</b><p>Yesterday at 7:42 PM</p></div><span>Done</span></li><li><i class="fa-solid fa-right-to-bracket purple-text"></i><div><b>New login detected</b><p>Chrome on Windows • India</p></div><span>Verified</span></li></ul>
+</section>
+</div>
+
+<section class="danger-zone"><div><span class="eyebrow">DANGER ZONE</span><h3>Delete account</h3><p>Permanently delete your account and all associated security data. This action cannot be undone.</p></div><button id="deleteBtn">Delete account</button></section>
+<footer><b><i class="fa-solid fa-shield-halved"></i> Secret Scanner</b><span>Account security is your first line of defense.</span></footer>
+</main>
+<script src="js/profile.js"></script>
+</body></html>

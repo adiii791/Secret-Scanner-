@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Secret Scanner | Administration</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <main class="main-content" style="margin-left:0;max-width:1500px">
+    <header class="topbar"><div><span class="eyebrow">RESTRICTED</span><h1>Database administration</h1><p id="adminStatus">Checking administrator access…</p></div><div><button class="scan-submit" id="refreshBtn">Refresh</button> <a class="scan-submit" href="index.html" style="text-decoration:none;display:inline-block">Dashboard</a></div></header>
+    <section class="stats-grid"><article class="stat-card"><div class="stat-top"><span>Registered users</span></div><h2 id="userCount">—</h2></article><article class="stat-card"><div class="stat-top"><span>Saved scans</span></div><h2 id="scanCount">—</h2></article></section>
+    <section class="panel"><div class="panel-heading"><div><span class="eyebrow">DATABASE</span><h2>Users</h2></div></div><div class="table-wrap"><table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Created</th></tr></thead><tbody id="usersBody"></tbody></table></div></section>
+    <section class="panel" style="margin-top:18px"><div class="panel-heading"><div><span class="eyebrow">DATABASE</span><h2>Latest scans</h2></div></div><div class="table-wrap"><table><thead><tr><th>User</th><th>Type</th><th>Findings</th><th>Score</th><th>Scanned</th><th>Code preview</th></tr></thead><tbody id="scansBody"></tbody></table></div></section>
+  </main>
+  <script src="js/admin.js"></script>
+</body>
+</html>

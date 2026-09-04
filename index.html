@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Secret Scanner | Security Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <a class="brand" href="index.html">
+      <div class="brand-mark"><i class="fa-solid fa-shield-halved"></i><span></span></div>
+      <div><strong>Secret Scanner</strong><small>SECURITY PLATFORM</small></div>
+    </a>
+
+    <nav>
+      <p class="nav-label">WORKSPACE</p>
+      <a class="nav-item active" href="index.html"><i class="fa-solid fa-grid-2"></i><span>Dashboard</span></a>
+      <a class="nav-item" href="#history"><i class="fa-solid fa-clock-rotate-left"></i><span>Scan History</span></a>
+      <a class="nav-item" href="#reports"><i class="fa-solid fa-file-shield"></i><span>Reports</span></a>
+      <p class="nav-label">MANAGE</p>
+      <a class="nav-item" href="profile.html"><i class="fa-solid fa-user-gear"></i><span>Profile</span></a>
+      <a class="nav-item" href="profile.html"><i class="fa-solid fa-sliders"></i><span>Settings</span></a>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="security-mini">
+        <div class="mini-icon"><i class="fa-solid fa-lock"></i></div>
+        <div><strong>Workspace secure</strong><span>All systems operational</span></div>
+        <i class="fa-solid fa-circle-check online"></i>
+      </div>
+      <button class="nav-item theme-btn" id="themeBtn"><i class="fa-solid fa-moon"></i><span>Dark mode</span></button>
+      <button class="logout" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> Logout</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="mobile-brand"><div class="brand-mark"><i class="fa-solid fa-shield-halved"></i></div><strong>Secret Scanner</strong></div>
+      <div class="welcome">
+        <span class="eyebrow">SECURITY OVERVIEW</span>
+        <h1>Good evening, Saloni <span>👋</span></h1>
+        <p>Monitor repositories, detect exposed credentials and improve your security posture.</p>
+      </div>
+
+      <div class="top-actions">
+        <label class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="searchInput" type="search" placeholder="Search scans or repositories...">
+          <kbd>⌘ K</kbd>
+        </label>
+        <button class="icon-btn notification" id="notificationBtn" aria-label="Notifications">
+          <i class="fa-regular fa-bell"></i><span>3</span>
+        </button>
+
+        <div class="profile-menu">
+          <button class="profile-pill" id="profileBtn" aria-expanded="false">
+            <div class="avatar avatar-gradient">SG</div>
+            <div class="profile-text"><strong>Saloni Gutalkar</strong><span>Administrator</span></div>
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+          <div class="profile-dropdown" id="profileDropdown">
+            <div class="dropdown-user">
+              <div class="avatar avatar-gradient big">SG</div>
+              <div><strong>Saloni Gutalkar</strong><span>saloni@gmail.com</span><em>Administrator</em></div>
+            </div>
+            <a href="profile.html"><i class="fa-solid fa-user"></i> View profile</a>
+            <a href="profile.html"><i class="fa-solid fa-sliders"></i> Account settings</a>
+            <button id="dropdownTheme"><i class="fa-solid fa-circle-half-stroke"></i> Theme <span>Dark</span></button>
+            <hr>
+            <button class="danger-link" id="dropdownLogout"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="notification-panel" id="notificationPanel">
+      <div><strong>Notifications</strong><button id="closeNotifications">×</button></div>
+      <article><i class="fa-solid fa-circle-check success"></i><p><b>Scan completed</b><span>Portfolio-App finished with a 92% score.</span></p></article>
+      <article><i class="fa-solid fa-triangle-exclamation danger"></i><p><b>Critical secret detected</b><span>AWS credential found in Banking API.</span></p></article>
+      <article><i class="fa-solid fa-code-branch info"></i><p><b>Repository added</b><span>New repository is now being monitored.</span></p></article>
+    </div>
+
+    <section class="status-strip">
+      <div><i class="fa-solid fa-circle-check"></i><span>System status <b>Operational</b></span></div>
+      <div><i class="fa-solid fa-clock"></i><span>Last scan <b id="lastScan">2 minutes ago</b></span></div>
+      <div><i class="fa-solid fa-code-branch"></i><span>Repositories <b>12 monitored</b></span></div>
+      <div><i class="fa-solid fa-shield-heart"></i><span>Protection <b>Active</b></span></div>
+    </section>
+    <section class="panel scan-form-panel">
+      <div class="panel-heading"><div><span class="eyebrow">ON-DEMAND SCAN</span><h2>Scan code for exposed secrets</h2></div></div>
+      <form id="scanForm">
+        <textarea id="codeInput" rows="7" placeholder="Paste code, configuration, or environment variables here…" required></textarea>
+        <div class="scan-actions"><span id="scanMessage" role="status"></span><button class="scan-submit" id="scanSubmit" type="submit">Run scan</button></div>
+      </form>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stat-card">
+        <div class="stat-top"><span>Total scans</span><div class="stat-icon blue"><i class="fa-solid fa-radar"></i></div></div>
+        <h2 data-count="128">0</h2><div class="trend up"><i class="fa-solid fa-arrow-trend-up"></i> 18.4% <span>vs last month</span></div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-top"><span>Secrets detected</span><div class="stat-icon red"><i class="fa-solid fa-key"></i></div></div>
+        <h2 data-count="342">0</h2><div class="trend down"><i class="fa-solid fa-arrow-trend-down"></i> 6.2% <span>vs last month</span></div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-top"><span>Repositories</span><div class="stat-icon purple"><i class="fa-solid fa-code-branch"></i></div></div>
+        <h2 data-count="12">0</h2><div class="trend neutral"><i class="fa-solid fa-minus"></i> Stable <span>this month</span></div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-top"><span>Security score</span><div class="stat-icon green"><i class="fa-solid fa-shield"></i></div></div>
+        <h2 data-count="96">0%</h2><div class="trend up"><i class="fa-solid fa-arrow-trend-up"></i> 4.8% <span>vs last month</span></div>
+      </article>
+    </section>
+
+    <section class="dashboard-grid top-grid">
+      <article class="panel scan-panel" id="history">
+        <div class="panel-heading"><div><span class="eyebrow">ACTIVITY</span><h2>Recent scans</h2></div><button class="text-btn" id="viewAllBtn">View all <i class="fa-solid fa-arrow-right"></i></button></div>
+        <div class="table-wrap">
+          <table id="scanTable">
+            <thead><tr><th>Repository</th><th>Type</th><th>Secrets</th><th>Score</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><div class="repo"><span class="repo-icon"><i class="fa-brands fa-github"></i></span><div><b>Banking API</b><small>2 min ago</small></div></div></td><td>GitHub</td><td><b class="red-text">8</b></td><td><b>72%</b></td><td><span class="badge critical">Critical</span></td><td><button class="row-action">•••</button></td></tr>
+              <tr><td><div class="repo"><span class="repo-icon"><i class="fa-brands fa-github"></i></span><div><b>Portfolio-App</b><small>18 min ago</small></div></div></td><td>GitHub</td><td><b>0</b></td><td><b>98%</b></td><td><span class="badge safe">Secure</span></td><td><button class="row-action">•••</button></td></tr>
+              <tr><td><div class="repo"><span class="repo-icon"><i class="fa-brands fa-gitlab"></i></span><div><b>Hospital Portal</b><small>43 min ago</small></div></div></td><td>GitLab</td><td><b class="orange-text">4</b></td><td><b>84%</b></td><td><span class="badge warning">Review</span></td><td><button class="row-action">•••</button></td></tr>
+              <tr><td><div class="repo"><span class="repo-icon"><i class="fa-brands fa-github"></i></span><div><b>E-Commerce</b><small>1 hr ago</small></div></div></td><td>GitHub</td><td><b class="orange-text">2</b></td><td><b>91%</b></td><td><span class="badge warning">Review</span></td><td><button class="row-action">•••</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer"><span>Showing 4 of 128 scans</span><div><button>‹</button><button class="active-page">1</button><button>2</button><button>3</button><button>›</button></div></div>
+      </article>
+
+      <article class="panel score-panel">
+        <div class="panel-heading"><div><span class="eyebrow">POSTURE</span><h2>Security score</h2></div><span class="status-dot"><i></i> Excellent</span></div>
+        <div class="score-chart"><canvas id="scoreChart"></canvas><div class="score-center"><strong>96</strong><span>/ 100</span><small>Protected</small></div></div>
+        <div class="severity">
+          <div><span><i class="severity-dot critical"></i>Critical</span><b>2</b></div>
+          <div><span><i class="severity-dot high"></i>High</span><b>5</b></div>
+          <div><span><i class="severity-dot medium"></i>Medium</span><b>8</b></div>
+          <div><span><i class="severity-dot low"></i>Low</span><b>14</b></div>
+        </div>
+      </article>
+    </section>
+
+    <section class="dashboard-grid charts-grid">
+      <article class="panel chart-panel"><div class="panel-heading"><div><span class="eyebrow">ANALYTICS</span><h2>Weekly scan activity</h2></div><select><option>Last 7 days</option><option>Last 30 days</option></select></div><div class="chart-holder"><canvas id="weeklyChart"></canvas></div></article>
+      <article class="panel chart-panel"><div class="panel-heading"><div><span class="eyebrow">BREAKDOWN</span><h2>Detected secret types</h2></div></div><div class="chart-holder"><canvas id="secretChart"></canvas></div></article>
+    </section>
+
+    <section class="panel" id="reports">
+      <div class="panel-heading"><div><span class="eyebrow">RISK MANAGEMENT</span><h2>Repository risk overview</h2></div><button class="text-btn" id="exportBtn">Export report <i class="fa-solid fa-download"></i></button></div>
+      <div class="risk-grid">
+        <article class="risk-row"><div class="risk-repo"><span class="repo-icon red-bg"><i class="fa-solid fa-building-columns"></i></span><div><b>Banking API</b><small>8 secrets detected</small></div></div><div class="risk-score"><span>95</span><div class="risk-bar"><i style="width:95%"></i></div></div><span class="badge critical">Critical</span></article>
+        <article class="risk-row"><div class="risk-repo"><span class="repo-icon orange-bg"><i class="fa-solid fa-hospital"></i></span><div><b>Hospital Portal</b><small>4 secrets detected</small></div></div><div class="risk-score"><span>71</span><div class="risk-bar"><i style="width:71%"></i></div></div><span class="badge warning">Warning</span></article>
+        <article class="risk-row"><div class="risk-repo"><span class="repo-icon yellow-bg"><i class="fa-solid fa-cart-shopping"></i></span><div><b>E-Commerce</b><small>2 secrets detected</small></div></div><div class="risk-score"><span>36</span><div class="risk-bar"><i style="width:36%"></i></div></div><span class="badge warning">Warning</span></article>
+        <article class="risk-row"><div class="risk-repo"><span class="repo-icon green-bg"><i class="fa-solid fa-globe"></i></span><div><b>Portfolio Website</b><small>No secrets detected</small></div></div><div class="risk-score"><span>12</span><div class="risk-bar"><i style="width:12%"></i></div></div><span class="badge safe">Safe</span></article>
+      </div>
+    </section>
+
+    <section class="panel recommendations">
+      <div class="panel-heading"><div><span class="eyebrow">ACTION CENTER</span><h2>Security recommendations</h2></div><span class="recommend-count">4 actions</span></div>
+      <div class="recommend-grid">
+        <article><span class="rec-icon red-bg"><i class="fa-solid fa-key"></i></span><div><b>Rotate exposed API keys</b><p>Two repositories contain exposed API credentials that should be rotated immediately.</p></div><button>Fix now</button></article>
+        <article><span class="rec-icon purple-bg"><i class="fa-solid fa-lock"></i></span><div><b>Enable multi-factor authentication</b><p>Protect administrator accounts with an additional authentication factor.</p></div><button>Review</button></article>
+        <article><span class="rec-icon blue-bg"><i class="fa-solid fa-file-code"></i></span><div><b>Improve .gitignore rules</b><p>Prevent sensitive configuration files from being committed accidentally.</p></div><button>Review</button></article>
+        <article><span class="rec-icon orange-bg"><i class="fa-solid fa-triangle-exclamation"></i></span><div><b>Remove hardcoded passwords</b><p>Move credentials into environment variables or a secure secret manager.</p></div><button>Fix now</button></article>
+      </div>
+    </section>
+
+    <footer><div><b><i class="fa-solid fa-shield-halved"></i> Secret Scanner</b><span>Automated secret detection for modern development teams.</span></div><span>Dashboard v3.0 • Updated today</span></footer>
+  </main>
+  <script src="js/script.js"></script>
+</body>
+</html>
