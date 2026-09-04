@@ -185,6 +185,31 @@ form {
   gap: 6px;
 }
 
+.inline-field {
+  display: flex;
+  gap: 10px;
+}
+
+.inline-field input {
+  flex: 1;
+}
+
+.otp-btn {
+  white-space: nowrap;
+  background: rgba(34, 197, 94, 0.12);
+  color: #d8f8ea;
+  font-weight: 700;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  border-radius: 9px;
+  padding: 0 12px;
+  cursor: pointer;
+}
+
+.otp-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
 .field label {
   font-size: 13px;
   font-weight: 600;
@@ -445,3 +470,8 @@ form {
 
 .field.name-field { display: none; }
 .panel[data-mode="signup"] .field.name-field { display: block; }
+
+.field.phone-field,
+.field.otp-field { display: none; }
+.panel[data-mode="signup"] .field.phone-field,
+.panel[data-mode="signup"] .field.otp-field { display: flex; }

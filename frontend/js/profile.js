@@ -1,4 +1,4 @@
-const API_BASE = location.protocol === "file:" ? "http://127.0.0.1:5000" : "";
+const API_BASE = location.protocol === "file:" ? "http://127.0.0.1:5001" : "";
 const token = localStorage.getItem("secretScannerToken");
 const api = async (path, options = {}) => {
   const response = await fetch(API_BASE + path, {...options, headers: {...options.headers, Authorization: "Bearer " + token}});
@@ -11,7 +11,12 @@ function setProfile(user, scans) {
   document.getElementById("profileAvatar").textContent = initials;
   document.getElementById("heroName").textContent = user.name;
   document.getElementById("nameInput").value = user.name;
-  document.querySelector(".hero-meta span").innerHTML = '<i class="fa-regular fa-envelope"></i> ' + user.email;
+  const email = document.querySelector(".hero-meta span");
+  if (email) {
+    email.replaceChildren(document.createTextNode(user.email));
+    email.prepend(Object.assign(document.createElement("i"), { className: "fa-regular fa-envelope" }));
+    email.insertBefore(document.createTextNode(" "), email.lastChild);
+  }
   const values = document.querySelectorAll(".stats b");
   if (values.length >= 3) {
     values[0].textContent = scans.length;
@@ -20,17 +25,17 @@ function setProfile(user, scans) {
   }
 }
 document.addEventListener("DOMContentLoaded", async () => {
-  if (!token) { location.href = "login.html"; return; }
+  if (!token) { location.href = "Login.html"; return; }
   try {
     const [me, history] = await Promise.all([api("/api/me"), api("/api/history")]);
     setProfile(me.user, history.scans);
-  } catch (error) { localStorage.clear(); location.href = "login.html"; return; }
+  } catch (error) { localStorage.clear(); location.href = "Login.html"; return; }
   const inputs = [...document.querySelectorAll(".form-grid input")];
   const edit = () => { inputs[0].disabled = false; document.getElementById("saveRow").classList.add("show"); inputs[0].focus(); };
-  document.getElementById("editBtn").addEventListener("click", edit);
-  document.getElementById("editDetails").addEventListener("click", edit);
-  document.getElementById("cancelBtn").addEventListener("click", () => { inputs[0].disabled = true; document.getElementById("saveRow").classList.remove("show"); });
-  document.getElementById("saveBtn").addEventListener("click", async () => {
+  document.getElementById("editBtn")?.addEventListener("click", edit);
+  document.getElementById("editDetails")?.addEventListener("click", edit);
+  document.getElementById("cancelBtn")?.addEventListener("click", () => { inputs[0].disabled = true; document.getElementById("saveRow").classList.remove("show"); });
+  document.getElementById("saveBtn")?.addEventListener("click", async () => {
     try {
       const data = await api("/api/me", {method: "PUT", headers: {"Content-Type": "application/json"}, body: JSON.stringify({name: inputs[0].value})});
       localStorage.setItem("secretScannerUser", JSON.stringify(data.user));
@@ -39,7 +44,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       inputs[0].disabled = true; document.getElementById("saveRow").classList.remove("show");
     } catch (error) { alert(error.message); }
   });
-  document.getElementById("logoutBtn").addEventListener("click", () => { localStorage.clear(); location.href = "login.html"; });
+  document.getElementById("logoutBtn").addEventListener("click", () => { localStorage.clear(); sessionStorage.removeItem("secretScannerLastResult"); location.href = "Login.html"; });
   document.getElementById("themeBtn").addEventListener("click", () => document.body.classList.toggle("light"));
   document.getElementById("avatarBtn").addEventListener("click", () => alert("Avatar uploads are not enabled yet."));
   document.getElementById("passwordBtn").addEventListener("click", async () => {
@@ -56,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!confirm("Delete your account and every saved scan? This cannot be undone.")) return;
     try {
       await api("/api/me", {method: "DELETE"});
-      localStorage.clear(); location.href = "login.html";
+      localStorage.clear(); location.href = "Login.html";
     } catch (error) { alert(error.message); }
   });
   document.querySelectorAll(".security-item .outline-btn, .connected .outline-btn, .card-head .small-btn:not(#editDetails)").forEach(button => {

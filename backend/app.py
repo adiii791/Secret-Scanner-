@@ -3,36 +3,80 @@ from datetime import timedelta
 import os
 from pathlib import Path
 from functools import wraps
+from time import monotonic
 
 from dotenv import load_dotenv
+load_dotenv(Path(__file__).resolve().parent / ".env")
+
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required, verify_jwt_in_request
+try:
+    from flask_migrate import Migrate
+    
+except ImportError:
+    Migrate = None
 
 from detector import scan_code
 from models import Scan, User, db
 from auth import auth_bp
 from webhook import webhook_bp
 
-load_dotenv()
-
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 app = Flask(__name__, static_folder=str(FRONTEND_DIR), static_url_path="")
+secret_key = os.environ.get("JWT_SECRET_KEY", "").strip()
+if len(secret_key) < 32:
+    raise RuntimeError("JWT_SECRET_KEY must be configured with at least 32 characters")
+
+admin_emails = {
+    email.strip().lower()
+    for email in os.environ.get("ADMIN_EMAIL", "").replace("\n", ",").split(",")
+    if email.strip()
+}
 app.config.update(
-    JWT_SECRET_KEY=os.environ.get("JWT_SECRET_KEY", "secretscanner-dev-key"),
+    JWT_SECRET_KEY=secret_key,
     JWT_ACCESS_TOKEN_EXPIRES=timedelta(hours=24),
     SQLALCHEMY_DATABASE_URI=os.environ.get("DATABASE_URL", "sqlite:///secretscanner.db"),
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
-    ADMIN_EMAIL=os.environ.get("ADMIN_EMAIL", "").strip().lower(),
+    ADMIN_EMAILS=admin_emails,
+    MAX_CONTENT_LENGTH=1 * 1024 * 1024,
+    AUTO_CREATE_DB=os.environ.get("AUTO_CREATE_DB", "false").lower() == "true",
 )
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+allowed_origins = [origin.strip() for origin in os.environ.get("CORS_ORIGINS", "http://127.0.0.1:5001,http://localhost:5001").split(",") if origin.strip()]
+CORS(app, resources={r"/api/*": {"origins": allowed_origins}})
 JWTManager(app)
 db.init_app(app)
+if Migrate is not None:
+    Migrate(app, db)
 app.register_blueprint(auth_bp)
 app.register_blueprint(webhook_bp)
 
-with app.app_context():
-    db.create_all()
+if app.config["AUTO_CREATE_DB"]:
+    with app.app_context():
+        db.create_all()
+
+scan_attempts = {}
+
+
+@app.after_request
+def add_security_headers(response):
+    response.headers.setdefault("X-Content-Type-Options", "nosniff")
+    response.headers.setdefault("X-Frame-Options", "DENY")
+    response.headers.setdefault("Referrer-Policy", "strict-origin-when-cross-origin")
+    response.headers.setdefault("Content-Security-Policy", "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' https://fonts.googleapis.com https://cdnjs.cloudflare.com 'unsafe-inline'; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; connect-src 'self'")
+    return response
+
+
+def allow_scan_request():
+    client_key = request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",")[0].strip()
+    now = monotonic()
+    recent = [timestamp for timestamp in scan_attempts.get(client_key, []) if now - timestamp < 60]
+    if len(recent) >= 30:
+        scan_attempts[client_key] = recent
+        return False
+    recent.append(now)
+    scan_attempts[client_key] = recent
+    return True
 
 
 def admin_required(view):
@@ -41,7 +85,7 @@ def admin_required(view):
     @jwt_required()
     def wrapped(*args, **kwargs):
         user = db.session.get(User, int(get_jwt_identity()))
-        if user is None or not app.config["ADMIN_EMAIL"] or user.email.lower() != app.config["ADMIN_EMAIL"]:
+        if user is None or user.email.lower() not in app.config["ADMIN_EMAILS"]:
             return jsonify({"error": "Administrator access required"}), 403
         return view(*args, **kwargs)
     return wrapped
@@ -49,11 +93,13 @@ def admin_required(view):
 
 @app.route("/")
 def frontend():
-    return app.send_static_file("login.html")
+    return app.send_static_file("Login.html")
 
 
 @app.route("/api/scan", methods=["POST"])
 def scan():
+    if not allow_scan_request():
+        return jsonify({"error": "Too many scan requests. Try again later."}), 429
     data = request.get_json(silent=True) or {}
     code = data.get("code", "")
     if not isinstance(code, str) or not code.strip():
@@ -70,7 +116,7 @@ def scan():
         new_scan = Scan(
             user_id=int(user_id),
             input_type=input_type,
-            code_snippet=code[:500],
+            code_snippet=None,
             score=result["score"],
             total_found=result["total_found"],
             findings=result["findings"],
@@ -89,13 +135,22 @@ def history():
     return jsonify({"success": True, "total_scans": len(scans), "scans": [scan.to_dict() for scan in scans]})
 
 
+@app.route("/api/scans/<int:scan_id>", methods=["GET"])
+@jwt_required()
+def scan_detail(scan_id):
+    scan = Scan.query.filter_by(id=scan_id, user_id=int(get_jwt_identity())).first()
+    if scan is None:
+        return jsonify({"error": "Scan not found"}), 404
+    return jsonify({"scan": scan.to_dict()})
+
+
 @app.route("/api/me", methods=["GET"])
 @jwt_required()
 def me():
     user = db.session.get(User, int(get_jwt_identity()))
     if user is None:
         return jsonify({"error": "User not found"}), 404
-    return jsonify({"user": user.to_dict(), "is_admin": user.email.lower() == app.config["ADMIN_EMAIL"]})
+    return jsonify({"user": user.to_dict(), "is_admin": user.email.lower() in app.config["ADMIN_EMAILS"]})
 
 
 @app.route("/api/me", methods=["PUT"])
@@ -155,14 +210,20 @@ def admin_database():
 @app.route("/api/health", methods=["GET"])
 def health():
     database_url = app.config["SQLALCHEMY_DATABASE_URI"]
+    try:
+        db.session.execute(db.text("SELECT 1"))
+        database_status = "connected"
+    except Exception:
+        database_status = "unavailable"
+    status_code = 200 if database_status == "connected" else 503
     return jsonify({
         "status": "running",
         "message": "SecretScanner API is live",
         "version": "2.0",
-        "database": "connected",
+        "database": database_status,
         "database_backend": "postgresql" if database_url.startswith("postgresql") else "sqlite",
-        "admin_configured": bool(app.config["ADMIN_EMAIL"]),
-    })
+        "admin_configured": bool(app.config["ADMIN_EMAILS"]),
+    }), status_code
 
 
 if __name__ == "__main__":

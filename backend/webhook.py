@@ -125,7 +125,9 @@ def github_webhook():
     signature = request.headers.get("X-Hub-Signature-256")
     payload_body = request.get_data()
 
-    if GITHUB_WEBHOOK_SECRET and not verify_signature(payload_body, signature):
+    if not GITHUB_WEBHOOK_SECRET:
+        return jsonify({"error": "Webhook secret is not configured"}), 503
+    if not verify_signature(payload_body, signature):
         return jsonify({
             "error": "Invalid signature â€” request not from GitHub"
         }), 403
@@ -136,7 +138,7 @@ def github_webhook():
     except Exception:
         return jsonify({"error": "Invalid JSON payload"}), 400
 
-    if not payload:
+    if not isinstance(payload, dict):
         return jsonify({"error": "Empty payload"}), 400
 
     # â”€â”€ Step 3: Extract key info â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
@@ -145,6 +147,9 @@ def github_webhook():
     pusher_name = payload.get("pusher", {}).get("name", "unknown")
     commits = payload.get("commits", [])
     ref = payload.get("ref", "")
+
+    if not isinstance(commits, list) or any(not isinstance(commit, dict) for commit in commits):
+        return jsonify({"error": "Invalid commits payload"}), 400
 
     print(f"\nðŸ“¦ Push received from {pusher_name} on {repo_name}")
     print(f"Branch: {ref}")
@@ -159,7 +164,7 @@ def github_webhook():
         }), 200
 
     # Filter only scannable files
-    scannable_files = [f for f in changed_files if is_scannable(f)]
+    scannable_files = [f for f in changed_files if isinstance(f, str) and is_scannable(f)][:100]
 
     if not scannable_files:
         return jsonify({
@@ -172,7 +177,7 @@ def github_webhook():
     # â”€â”€ Step 5: Scan each file â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     all_findings = []
     scanned_files = []
-    latest_commit_sha = commits[-1]["id"] if commits else "HEAD"
+    latest_commit_sha = commits[-1].get("id", "HEAD") if commits else "HEAD"
 
     for file_path in scannable_files:
         # Fetch file content from GitHub

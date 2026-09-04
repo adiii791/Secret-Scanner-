@@ -1,4 +1,4 @@
-const API_BASE = location.protocol === "file:" ? "http://127.0.0.1:5000" : "";
+const API_BASE = location.protocol === "file:" ? "http://127.0.0.1:5001" : "";
 const escapeHtml = value => String(value || "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
 async function loadDatabase() {
   const token = localStorage.getItem("secretScannerToken");

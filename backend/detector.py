@@ -11,7 +11,7 @@ PATTERNS = [
 
     {
         "name" : "JWT Token",
-        "regex" : r'^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$',
+        "regex" : r'(?<![A-Za-z0-9_-])[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+(?![A-Za-z0-9_-])',
         "severity" : "High",
         "fix" : "Remove the exposed JWT immediately, revoke and rotate the token, and store secrets securely using environment variables"
 

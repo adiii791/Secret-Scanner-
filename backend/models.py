@@ -33,6 +33,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)                 # auto number
     name = db.Column(db.String(120), nullable=False)              # text
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)  # unique text
+    phone = db.Column(db.String(30), unique=True, nullable=True, index=True)  # phone for OTP verification
     password_hash = db.Column(db.String(255), nullable=False)     # encrypted text (never store raw password)
     created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)  # date/time
 
@@ -51,6 +52,7 @@ class User(db.Model):
             "id": self.id,
             "name": self.name,
             "email": self.email,
+            "phone": self.phone,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
