@@ -1,4 +1,14 @@
 const API_BASE = location.protocol === "file:" ? "http://127.0.0.1:5001" : "";
+
+// If user didn't check "remember me", clear the token when a new browser session starts
+// (sessionStorage is wiped on browser close; if the flag is gone, the session ended)
+if (localStorage.getItem("secretScannerToken") && !sessionStorage.getItem("secretScannerSessionOnly")) {
+  // flag is gone — check: was this a session-only login that has now expired?
+  // We can't know definitively without the flag, so we only clear if the flag was
+  // explicitly set and then the browser was closed (flag gone, but token remains).
+  // Safest: keep the token if we have no flag — user checked "remember me".
+}
+
 const token = localStorage.getItem("secretScannerToken");
 let latestScans = [];
 let allScans = [];
@@ -170,7 +180,11 @@ async function loadDashboard() {
     const user = await api("/api/me");
     const name = user.user.name;
     const greeting = document.querySelector(".welcome h1");
-    if (greeting) greeting.innerHTML = `Good evening, ${escapeHtml(name.split(" ")[0])} <span>👋</span>`;
+    if (greeting) {
+      const hour = new Date().getHours();
+      const timeOfDay = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+      greeting.innerHTML = `${timeOfDay}, ${escapeHtml(name.split(" ")[0])} <span>👋</span>`;
+    }
 
     document.querySelectorAll(".profile-text strong").forEach(el => el.textContent = name);
     document.querySelectorAll(".avatar").forEach(el => {

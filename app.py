@@ -25,7 +25,10 @@ app.config.update(
     SQLALCHEMY_TRACK_MODIFICATIONS=False,
     ADMIN_EMAIL=os.environ.get("ADMIN_EMAIL", "").strip().lower(),
 )
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+
+# Use comma-separated CORS_ORIGINS env var if set; otherwise allow all (dev only)
+_cors_origins = [o.strip() for o in os.environ.get("CORS_ORIGINS", "").split(",") if o.strip()]
+CORS(app, resources={r"/api/*": {"origins": _cors_origins if _cors_origins else "*"}})
 JWTManager(app)
 db.init_app(app)
 app.register_blueprint(auth_bp)
@@ -49,7 +52,16 @@ def admin_required(view):
 
 @app.route("/")
 def frontend():
-    return app.send_static_file("login.html")
+    return app.send_static_file("Login.html")
+
+
+@app.route("/api/scans/<int:scan_id>", methods=["GET"])
+@jwt_required()
+def get_scan(scan_id):
+    scan = db.session.get(Scan, scan_id)
+    if scan is None or scan.user_id != int(get_jwt_identity()):
+        return jsonify({"error": "Scan not found"}), 404
+    return jsonify({"success": True, "scan": scan.to_dict()})
 
 
 @app.route("/api/scan", methods=["POST"])
