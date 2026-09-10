@@ -1,9 +1,8 @@
 """Secret Scanner HTTP API and frontend host."""
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 import os
 from pathlib import Path
 from functools import wraps
-from time import monotonic
 
 from dotenv import load_dotenv
 load_dotenv(Path(__file__).resolve().parent / ".env")
@@ -13,12 +12,11 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager, get_jwt_identity, jwt_required, verify_jwt_in_request
 try:
     from flask_migrate import Migrate
-    
 except ImportError:
     Migrate = None
 
 from detector import scan_code
-from models import Scan, User, db
+from models import Scan, User, ScanRateEntry, db
 from auth import auth_bp
 from webhook import webhook_bp
 
@@ -55,9 +53,6 @@ if app.config["AUTO_CREATE_DB"]:
     with app.app_context():
         db.create_all()
 
-scan_attempts = {}
-
-
 @app.after_request
 def add_security_headers(response):
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
@@ -68,14 +63,27 @@ def add_security_headers(response):
 
 
 def allow_scan_request():
-    client_key = request.headers.get("X-Forwarded-For", request.remote_addr or "unknown").split(",")[0].strip()
-    now = monotonic()
-    recent = [timestamp for timestamp in scan_attempts.get(client_key, []) if now - timestamp < 60]
-    if len(recent) >= 30:
-        scan_attempts[client_key] = recent
+    """DB-backed sliding-window rate limiter — works across all gunicorn workers."""
+    client_key = (
+        request.headers.get("X-Forwarded-For", request.remote_addr or "unknown")
+        .split(",")[0].strip()[:64]
+    )
+    window_start = datetime.now(timezone.utc) - timedelta(seconds=60)
+    # Count hits in the last 60 seconds for this client.
+    recent_count = ScanRateEntry.query.filter(
+        ScanRateEntry.client_key == client_key,
+        ScanRateEntry.hit_at >= window_start,
+    ).count()
+    if recent_count >= 30:
         return False
-    recent.append(now)
-    scan_attempts[client_key] = recent
+    # Record this hit.
+    db.session.add(ScanRateEntry(client_key=client_key))
+    # Purge old entries for this client (keeps the table small).
+    ScanRateEntry.query.filter(
+        ScanRateEntry.client_key == client_key,
+        ScanRateEntry.hit_at < window_start,
+    ).delete()
+    db.session.commit()
     return True
 
 

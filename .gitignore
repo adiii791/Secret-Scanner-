@@ -1,10 +1,44 @@
+﻿# Secrets and credentials — never commit
 .env
 .env.*
 !.env.example
+
+# SQLite databases (dev only)
 *.db
+*.sqlite
+instance/
+backend/instance/
+
+# Python bytecode
 __pycache__/
 *.py[cod]
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Test / CI artefacts
 .pytest_cache/
+.coverage
+htmlcov/
+
+# Logs
 *.log
+
+# Build / distribution artefacts
 *.zip
+*.egg-info/
+dist/
+build/
+
+# IDE and OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Project-specific
 source-review.txt

@@ -30,7 +30,7 @@ def verify_signature(payload_body, signature_header):
         return False
 
     # Create our own signature using the secret
-    expected_signature = hmac.new(
+    expected_signature = hmac.new(  # hmac.new is a valid alias for hmac.HMAC
         GITHUB_WEBHOOK_SECRET.encode("utf-8"),
         msg=payload_body,
         digestmod=hashlib.sha256
@@ -104,16 +104,15 @@ def is_scannable(filename):
 # Notifies developer if critical secrets found
 
 def send_alert(pusher_email, repo_name, findings, score):
-    # For now just print â€”
-    # can integrate SendGrid or SMTP later
-    print(f"\nðŸš¨ CRITICAL SECRET FOUND!")
+    # For now just print - can integrate SendGrid or SES later
+    print(f"\n[ALERT] CRITICAL SECRET FOUND!")
     print(f"Repo     : {repo_name}")
     print(f"Pusher   : {pusher_email}")
     print(f"Score    : {score}/100")
     print(f"Findings : {len(findings)} secret(s) found")
     for finding in findings:
         if finding["severity"] == "Critical":
-            print(f"  â†’ Line {finding['line']}: {finding['type']}")
+            print(f"  -> Line {finding['line']}: {finding['type']}")
     print("Alert would be sent to:", pusher_email)
 
 #MAIN WEBHOOK ENDPOINT
@@ -121,7 +120,7 @@ def send_alert(pusher_email, repo_name, findings, score):
 @webhook_bp.route("/api/webhook/github", methods=["POST"])
 def github_webhook():
 
-    # â”€â”€ Step 1: Verify signature â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -- Step 1: Verify signature --
     signature = request.headers.get("X-Hub-Signature-256")
     payload_body = request.get_data()
 
@@ -129,10 +128,10 @@ def github_webhook():
         return jsonify({"error": "Webhook secret is not configured"}), 503
     if not verify_signature(payload_body, signature):
         return jsonify({
-            "error": "Invalid signature â€” request not from GitHub"
+            "error": "Invalid signature - request not from GitHub"
         }), 403
 
-    # â”€â”€ Step 2: Parse the payload â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -- Step 2: Parse the payload --
     try:
         payload = request.get_json()
     except Exception:
@@ -141,7 +140,7 @@ def github_webhook():
     if not isinstance(payload, dict):
         return jsonify({"error": "Empty payload"}), 400
 
-    # â”€â”€ Step 3: Extract key info â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -- Step 3: Extract key info --
     repo_name = payload.get("repository", {}).get("full_name", "unknown")
     pusher_email = payload.get("pusher", {}).get("email", "unknown")
     pusher_name = payload.get("pusher", {}).get("name", "unknown")
@@ -151,10 +150,10 @@ def github_webhook():
     if not isinstance(commits, list) or any(not isinstance(commit, dict) for commit in commits):
         return jsonify({"error": "Invalid commits payload"}), 400
 
-    print(f"\nðŸ“¦ Push received from {pusher_name} on {repo_name}")
+    print(f"\n[WEBHOOK] Push received from {pusher_name} on {repo_name}")
     print(f"Branch: {ref}")
 
-    # â”€â”€ Step 4: Get changed files â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -- Step 4: Get changed files --
     changed_files = get_changed_files(commits)
 
     if not changed_files:
@@ -174,7 +173,7 @@ def github_webhook():
 
     print(f"Files to scan: {scannable_files}")
 
-    # â”€â”€ Step 5: Scan each file â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -- Step 5: Scan each file --
     all_findings = []
     scanned_files = []
     latest_commit_sha = commits[-1].get("id", "HEAD") if commits else "HEAD"
@@ -199,15 +198,15 @@ def github_webhook():
                 "findings": result["total_found"]
             })
 
-            print(f"  âœ… {file_path} â€” Score: {result['score']}/100 â€” Found: {result['total_found']}")
+            print(f"  [OK] {file_path} - Score: {result['score']}/100 - Found: {result['total_found']}")
 
-    # â”€â”€ Step 6: Calculate overall score â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -- Step 6: Calculate overall score --
     if scanned_files:
         overall_score = sum(f["score"] for f in scanned_files) // len(scanned_files)
     else:
         overall_score = 100
 
-    # â”€â”€ Step 7: Send alert if critical found â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -- Step 7: Send alert if critical found --
     critical_findings = [f for f in all_findings if f["severity"] == "Critical"]
 
     if critical_findings:
@@ -216,7 +215,7 @@ def github_webhook():
     # Webhook scans are deliberately not persisted: Scan.user_id is required so
     # each saved result is visible only in its authenticated owner's history.
 
-    # â”€â”€ Step 9: Return summary â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # -- Step 9: Return summary --
     return jsonify({
         "success": True,
         "repo": repo_name,

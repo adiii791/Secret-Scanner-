@@ -16,7 +16,7 @@ This avoids the classic Flask bug of "two different SQLAlchemy instances
 that don't know about each other."
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from flask_sqlalchemy import SQLAlchemy
 
 # Single shared SQLAlchemy instance -> imported by app.py, auth.py, webhook.py
@@ -35,7 +35,7 @@ class User(db.Model):
     email = db.Column(db.String(255), unique=True, nullable=False, index=True)  # unique text
     phone = db.Column(db.String(30), unique=True, nullable=True, index=True)  # phone for OTP verification
     password_hash = db.Column(db.String(255), nullable=False)     # encrypted text (never store raw password)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)  # date/time
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     # One user -> many scans. `cascade` means: if a user is deleted,
     # their scan history is deleted with them (keeps the DB clean).
@@ -75,7 +75,7 @@ class Scan(db.Model):
     score = db.Column(db.Integer, nullable=False, default=0)       # 0-100 risk/health score
     total_found = db.Column(db.Integer, nullable=False, default=0) # how many secrets detected
     findings = db.Column(db.JSON, nullable=False, default=list)      # full scan results as JSON
-    scanned_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)   # date/time
+    scanned_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
 
     __table_args__ = (
         db.CheckConstraint("input_type IN ('paste','file','github')", name="ck_scan_input_type"),
@@ -97,3 +97,39 @@ class Scan(db.Model):
 
     def __repr__(self):
         return f"<Scan id={self.id} user_id={self.user_id} score={self.score}>"
+
+
+class OtpRequest(db.Model):
+    """
+    Table: otp_requests
+    One row = one pending OTP verification (email or phone).
+    Stored in the database so all gunicorn workers can share it.
+    Rows are deleted immediately after successful use or expiry.
+    """
+    __tablename__ = "otp_requests"
+
+    id = db.Column(db.Integer, primary_key=True)
+    # The identifier is either a normalised email or a normalised phone number.
+    identifier = db.Column(db.String(255), nullable=False, index=True)
+    otp_hash = db.Column(db.String(255), nullable=False)   # bcrypt/pbkdf2 hash of the 4-digit code
+    expires_at = db.Column(db.DateTime, nullable=False)    # UTC expiry timestamp
+
+    def __repr__(self):
+        return f"<OtpRequest id={self.id} identifier={self.identifier}>"
+
+
+class ScanRateEntry(db.Model):
+    """
+    Table: scan_rate_entries
+    Lightweight per-IP sliding-window counter for the /api/scan rate limiter.
+    Works across all gunicorn workers since it uses the shared database.
+    Rows older than 60 seconds are ignored and periodically purged.
+    """
+    __tablename__ = "scan_rate_entries"
+
+    id = db.Column(db.Integer, primary_key=True)
+    client_key = db.Column(db.String(64), nullable=False, index=True)
+    hit_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(timezone.utc))
+
+    def __repr__(self):
+        return f"<ScanRateEntry id={self.id} client={self.client_key}>"

@@ -1,0 +1,26 @@
+# .dockerignore — exclude files that must not be baked into the Docker image
+.env
+.env.*
+!.env.example
+.venv/
+__pycache__/
+*.py[cod]
+*.pyc
+*.pyo
+instance/
+*.db
+*.sqlite
+*.log
+*.zip
+.git/
+.github/
+.gitignore
+Secret-Scanner-review.zip
+source-review.txt
+backend/instance/
+backend/__pycache__/
+backend/migrations/__pycache__/
+Dockerfile
+docker-compose.yml
+.elasticbeanstalk/
+README.md

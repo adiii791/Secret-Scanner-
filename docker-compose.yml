@@ -1,0 +1,55 @@
+# docker-compose.yml — local development with PostgreSQL
+# Usage:
+#   docker-compose up --build
+#
+# The app will be available at http://localhost:5000
+# The database is at localhost:5432 (postgres/postgres)
+
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: secretscanner-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: secretscanner
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: secretscanner-app
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      # Override these values or use an .env file:
+      #   docker-compose --env-file .env up
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@db:5432/secretscanner
+      JWT_SECRET_KEY: local-dev-jwt-key-change-in-production-32chars
+      FLASK_DEBUG: "false"
+      AUTO_CREATE_DB: "true"
+      CORS_ORIGINS: "http://localhost:5000,http://127.0.0.1:5000"
+      PORT: "5000"
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:5000/api/health')\""]
+      interval: 30s
+      timeout: 10s
+      start_period: 20s
+      retries: 3
+
+volumes:
+  pgdata:

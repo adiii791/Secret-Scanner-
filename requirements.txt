@@ -1,9 +1,29 @@
+# Secret Scanner — Python dependencies
+# Install: pip install -r requirements.txt
+# All packages are pinned for reproducible AWS deployments.
+
+# Web framework
 Flask==3.1.2
 Flask-Cors==6.0.1
+
+# Authentication
 Flask-JWT-Extended==4.7.1
-Flask-Migrate==4.1.0
+
+# ORM + database
 Flask-SQLAlchemy==3.1.1
-gunicorn==23.0.0
+SQLAlchemy==2.0.52
+
+# Database migrations
+Flask-Migrate==4.1.0
+
+# PostgreSQL driver (psycopg v3, binary wheels — no libpq dev headers needed)
 psycopg[binary]==3.2.10
-python-dotenv==1.1.1
+
+# Production WSGI server
+gunicorn==23.0.0
+
+# HTTP client (GitHub webhook file fetching)
 requests==2.32.5
+
+# Environment variable loading
+python-dotenv==1.1.1

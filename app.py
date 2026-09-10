@@ -16,7 +16,7 @@ from webhook import webhook_bp
 
 load_dotenv()
 
-FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
+FRONTEND_DIR = Path(__file__).resolve().parent / "frontend"
 app = Flask(__name__, static_folder=str(FRONTEND_DIR), static_url_path="")
 app.config.update(
     JWT_SECRET_KEY=os.environ.get("JWT_SECRET_KEY", "secretscanner-dev-key"),
