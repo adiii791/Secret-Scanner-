@@ -1,250 +1,170 @@
 # Secret Scanner
 
-Flask API + static frontend for detecting exposed secrets (API keys, tokens, credentials) in source code using regex pattern matching.
-
-## Architecture
-
-```
-secret-scanner/
-├── backend/          # Flask API (app.py, auth.py, detector.py, webhook.py, models.py)
-├── frontend/         # Static HTML/CSS/JS dashboard
-├── wsgi.py           # Gunicorn / EB entry point
-├── gunicorn.conf.py  # Production server config
-├── Procfile          # PaaS process definition
-├── Dockerfile        # Docker / ECS / App Runner image
-└── .ebextensions/    # Elastic Beanstalk hooks
-```
+Flask API + static frontend for detecting exposed secrets (API keys, tokens, credentials) in source code.
 
 ---
 
-## Local Development
+## 🚀 Quick Start (Local Development)
 
 ### Prerequisites
 - Python 3.11+
-- (Optional) Docker & Docker Compose
+- Git
 
-### Option A — Python virtualenv
+### Steps
 
-```powershell
-# 1. Create virtualenv and install dependencies
+```bash
+# 1. Clone the repo
+git clone https://github.com/adiii791/Secret-Scanner-
+cd Secret-Scanner-
+
+# 2. Create and activate a virtual environment
 python -m venv .venv
+
+# Windows
 .\.venv\Scripts\Activate.ps1
+
+# Mac / Linux
+source .venv/bin/activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
 
-# 2. Configure environment
-cp .env.example backend/.env
-# Edit backend/.env — set JWT_SECRET_KEY (min 32 chars) and AUTO_CREATE_DB=true
+# 4. Set up your environment file
+cp backend/.env.example backend/.env
+# No edits needed — the defaults use SQLite and work out of the box
 
-# 3. Start the dev server
+# 5. Run the app
 cd backend
 python app.py
 ```
 
-App runs at **http://localhost:5000**
+Open your browser at **http://localhost:5000**
 
-### Option B — Docker Compose (with PostgreSQL)
+> **Note:** The `.env` file is gitignored and will never be committed. Each teammate must create their own from `.env.example`.
+
+---
+
+## 🐳 Docker Compose (Alternative — no Python install needed)
 
 ```bash
-# Start app + postgres
+# From project root:
 docker-compose up --build
-
-# Stop
-docker-compose down
 ```
 
 App runs at **http://localhost:5000**
 
 ---
 
-## API Reference
+## 📁 Project Structure
+
+```
+Secret-Scanner/
+├── backend/              # Flask API
+│   ├── app.py            # Main application entry point ← run this
+│   ├── auth.py           # Register / login / OTP routes
+│   ├── detector.py       # Secret scanning engine
+│   ├── models.py         # SQLAlchemy models
+│   ├── webhook.py        # GitHub webhook handler
+│   ├── .env.example      # Copy to backend/.env for local dev
+│   └── migrations/       # Alembic DB migrations
+├── frontend/             # Static HTML/CSS/JS
+│   ├── Login.html        # Login / Register page
+│   ├── index.html        # Scanner dashboard
+│   ├── results.html      # Scan results
+│   ├── profile.html      # User profile
+│   └── css/ js/          # Stylesheets and scripts
+├── requirements.txt      # Python dependencies
+├── Dockerfile            # Docker image
+├── docker-compose.yml    # Docker Compose (app + postgres)
+├── gunicorn.conf.py      # Production WSGI config
+├── Procfile              # PaaS process definition
+└── .ebextensions/        # AWS Elastic Beanstalk hooks
+```
+
+---
+
+## 🔑 Environment Variables
+
+| Variable | Dev Default | Description |
+|----------|-------------|-------------|
+| `JWT_SECRET_KEY` | set in `.env` | JWT signing key (min 32 chars) |
+| `DATABASE_URL` | `sqlite:///secretscanner.db` | DB connection string |
+| `FLASK_DEBUG` | `true` | Enable debug mode |
+| `AUTO_CREATE_DB` | `true` | Auto-create DB tables on startup (dev only) |
+| `PORT` | `5000` | Port to listen on |
+| `CORS_ORIGINS` | `http://localhost:5000` | Allowed origins |
+| `ADMIN_EMAIL` | *(blank)* | Email(s) with admin access |
+| `OTP_DEMO_MODE` | `true` | Skip real OTP delivery in dev |
+
+---
+
+## 🌐 API Reference
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | `POST` | `/api/auth/register` | — | Register a new user |
 | `POST` | `/api/auth/login` | — | Login, returns JWT token |
 | `POST` | `/api/scan` | Optional JWT | Scan code for secrets |
-| `GET`  | `/api/history` | JWT | Get personal scan history |
-| `GET`  | `/api/scans/<id>` | JWT | Get single scan detail |
-| `GET`  | `/api/me` | JWT | Get current user |
+| `GET`  | `/api/history` | JWT | Personal scan history |
+| `GET`  | `/api/scans/<id>` | JWT | Single scan detail |
+| `GET`  | `/api/me` | JWT | Current user profile |
 | `PUT`  | `/api/me` | JWT | Update display name |
 | `PUT`  | `/api/me/password` | JWT | Change password |
 | `DELETE` | `/api/me` | JWT | Delete account |
-| `GET`  | `/api/admin/database` | Admin JWT | Admin: view all users/scans |
+| `GET`  | `/api/admin/database` | Admin JWT | View all users/scans |
 | `POST` | `/api/webhook/github` | HMAC sig | GitHub push webhook |
 | `GET`  | `/api/health` | — | Health check |
 
 ---
 
-## AWS Deployment
+## ☁️ AWS Deployment
 
-Three paths are supported — choose based on your team's AWS experience:
-
-| Path | Best for |
-|------|----------|
-| **Elastic Beanstalk** | Easiest, fully managed, recommended starting point |
-| **ECS Fargate + ECR** | Production-grade containers, fine-grained control |
-| **EC2 + RDS** | Maximum control, requires manual setup |
-
----
-
-### Path 1 — AWS Elastic Beanstalk (recommended)
-
-#### Prerequisites
-- AWS account with admin or PowerUser permissions
-- [EB CLI](https://docs.aws.amazon.com/elasticbeanstalk/latest/dg/eb-cli3-install.html): `pip install awsebcli`
-- AWS RDS PostgreSQL instance (or Aurora Serverless v2)
-
-#### Steps
+### Option A — Elastic Beanstalk (recommended)
 
 ```bash
-# 1. Initialise the EB project (only needed once)
+# Install EB CLI
+pip install awsebcli
+
+# Deploy
 eb init secret-scanner --platform "Python 3.11 running on 64bit Amazon Linux 2023" --region us-east-1
+eb create secret-scanner-prod --instance-type t3.small --elb-type application
 
-# 2. Create the environment
-eb create secret-scanner-prod \
-  --instance-type t3.small \
-  --elb-type application \
-  --envvars "JWT_SECRET_KEY=$(python -c 'import secrets; print(secrets.token_hex(32))')"
-
-# 3. Set remaining environment variables (never commit secrets)
+# Set production environment variables (never commit these)
 eb setenv \
+  JWT_SECRET_KEY="$(python -c 'import secrets; print(secrets.token_hex(32))')" \
   DATABASE_URL="postgresql+psycopg://user:pass@your-rds-host:5432/secretscanner" \
   FLASK_DEBUG="false" \
+  AUTO_CREATE_DB="false" \
   ADMIN_EMAIL="you@example.com" \
-  CORS_ORIGINS="https://your-eb-url.elasticbeanstalk.com" \
-  AUTO_CREATE_DB="false"
+  CORS_ORIGINS="https://your-eb-url.elasticbeanstalk.com"
 
-# 4. Run the first database migration (one-time)
-eb ssh -c "cd /var/app/current && source /var/app/venv/*/bin/activate && cd backend && flask --app app db upgrade"
+# Run DB migrations (first deploy only)
+eb ssh -c "cd /var/app/current/backend && flask --app app db upgrade"
 
-# 5. Deploy (repeat for every code change)
 eb deploy
-
-# 6. Open in browser
 eb open
 ```
 
-After first deploy, the `.ebextensions/01_python.config` hook runs `flask db upgrade` automatically on every subsequent deploy.
-
-#### Setting up HTTPS (recommended)
-
-1. Request a free certificate in [AWS ACM](https://console.aws.amazon.com/acm/) for your domain.
-2. In EB Console → Environment → Configuration → Load Balancer → Add HTTPS listener (port 443) and select your cert.
-3. Update `CORS_ORIGINS` to your `https://` URL.
-4. Edit `.ebextensions/02_security.config` — replace the placeholder ARN with your real ACM certificate ARN.
-
----
-
-### Path 2 — Docker on ECS Fargate
+### Option B — Docker on ECS / EC2
 
 ```bash
-# 1. Build and push the image to ECR
-AWS_ACCOUNT=123456789012
-AWS_REGION=us-east-1
-ECR_REPO=$AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com/secret-scanner
-
-aws ecr create-repository --repository-name secret-scanner --region $AWS_REGION
-
-aws ecr get-login-password --region $AWS_REGION \
-  | docker login --username AWS --password-stdin $AWS_ACCOUNT.dkr.ecr.$AWS_REGION.amazonaws.com
-
 docker build -t secret-scanner .
-docker tag  secret-scanner:latest $ECR_REPO:latest
-docker push $ECR_REPO:latest
-
-# 2. Create an ECS cluster, task definition, and service via the AWS Console
-#    (or use the AWS CDK / Terraform — see below).
-#    Point the task definition at the ECR image above.
-#    Set all required environment variables as ECS task environment variables
-#    or reference them from AWS Secrets Manager.
-```
-
-**Minimum required environment variables for the ECS task:**
-
-| Variable | Value |
-|----------|-------|
-| `JWT_SECRET_KEY` | 32+ char random string (store in Secrets Manager) |
-| `DATABASE_URL` | `postgresql+psycopg://user:pass@rds-host:5432/secretscanner` |
-| `FLASK_DEBUG` | `false` |
-| `CORS_ORIGINS` | Your CloudFront / ALB HTTPS origin |
-| `ADMIN_EMAIL` | Admin email address |
-| `AUTO_CREATE_DB` | `false` (run `flask db upgrade` as a migration task instead) |
-
----
-
-### Path 3 — EC2 + RDS (manual)
-
-```bash
-# On the EC2 instance:
-
-# 1. Install Python 3.11, git, pip
-sudo dnf install -y python3.11 python3.11-pip git
-
-# 2. Clone the repo
-git clone https://github.com/YOUR_ORG/secret-scanner.git
-cd secret-scanner
-
-# 3. Install dependencies
-pip3.11 install -r requirements.txt
-
-# 4. Create /etc/secret-scanner.env (chmod 600, owned by app user)
-#    Set all variables from .env.example
-
-# 5. Run database migrations
-cd backend
-DATABASE_URL="..." flask --app app db upgrade
-
-# 6. Run with gunicorn (systemd service recommended)
-gunicorn --config ../gunicorn.conf.py wsgi:app
+docker run -p 5000:5000 \
+  -e JWT_SECRET_KEY="your-secret-key" \
+  -e DATABASE_URL="postgresql+psycopg://..." \
+  -e FLASK_DEBUG="false" \
+  -e AUTO_CREATE_DB="false" \
+  secret-scanner
 ```
 
 ---
 
-### Database Migrations
+## 🛡️ Production Security Checklist
 
-Always run migrations **before** starting the new application version:
-
-```bash
-# From the project root:
-cd backend
-flask --app app db upgrade
-
-# To create a new migration after changing models.py:
-flask --app app db migrate -m "describe the change"
-flask --app app db upgrade
-```
-
----
-
-### Environment Variables Reference
-
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `JWT_SECRET_KEY` | **Yes** | JWT signing key, min 32 chars |
-| `DATABASE_URL` | **Yes** | PostgreSQL connection string |
-| `FLASK_DEBUG` | No | `false` in production |
-| `PORT` | No | Port gunicorn binds to (default `5000`) |
-| `CORS_ORIGINS` | No | Comma-separated allowed origins |
-| `ADMIN_EMAIL` | No | Admin account email(s), comma-separated |
-| `AUTO_CREATE_DB` | No | `true` only in dev; use migrations in prod |
-| `GITHUB_WEBHOOK_SECRET` | No | GitHub webhook HMAC secret |
-| `GITHUB_TOKEN` | No | PAT for scanning private repos |
-| `SMTP_SERVER` | No | SMTP server for email alerts |
-| `SMTP_PORT` | No | SMTP port (default `587`) |
-| `SMTP_USER` | No | SMTP username |
-| `SMTP_PASSWORD` | No | SMTP password |
-| `SENDER_EMAIL` | No | From address for alert emails |
-
----
-
-### Security Checklist for Production
-
-- [ ] `JWT_SECRET_KEY` is at least 32 random characters and stored in Secrets Manager
+- [ ] `JWT_SECRET_KEY` is at least 32 random characters
 - [ ] `FLASK_DEBUG=false`
-- [ ] Database is in a **private subnet** — not publicly accessible
-- [ ] HTTPS is enabled at the ALB / CloudFront layer
-- [ ] `CORS_ORIGINS` lists only exact `https://` origins (no wildcards)
-- [ ] `AUTO_CREATE_DB=false` — use Alembic migrations
-- [ ] `.env` files, `*.db` files, and the ZIP archive are in `.gitignore` and never committed
-- [ ] Regular RDS automated backups are enabled
-- [ ] CloudWatch log groups are configured for gunicorn output
+- [ ] `AUTO_CREATE_DB=false` — use `flask db upgrade` instead
+- [ ] Database is in a private subnet
+- [ ] HTTPS is enabled
+- [ ] `CORS_ORIGINS` lists only exact `https://` origins
+- [ ] `.env` files are never committed

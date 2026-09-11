@@ -24,7 +24,15 @@ FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 app = Flask(__name__, static_folder=str(FRONTEND_DIR), static_url_path="")
 secret_key = os.environ.get("JWT_SECRET_KEY", "").strip()
 if len(secret_key) < 32:
-    raise RuntimeError("JWT_SECRET_KEY must be configured with at least 32 characters")
+    import sys
+    if os.environ.get("FLASK_DEBUG", "false").lower() == "true" or os.environ.get("AUTO_CREATE_DB", "false").lower() == "true":
+        # Dev mode: use a fixed insecure key so teammates can run without config
+        secret_key = "dev-insecure-secret-key-do-not-use-in-production-1234"
+    else:
+        raise RuntimeError(
+            "JWT_SECRET_KEY must be at least 32 characters.\n"
+            "Quick fix for local dev: copy .env.example to backend/.env and set AUTO_CREATE_DB=true"
+        )
 
 admin_emails = {
     email.strip().lower()
