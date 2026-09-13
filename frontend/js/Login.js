@@ -98,13 +98,13 @@ function openOauthModal(providerKey) {
   const provider = OAUTH_PROVIDERS[providerKey];
   if (!provider) return;
 
-  const modal = document.getElementById("oauthModal");
-  document.getElementById("oauthTitle").textContent = `Continue with ${provider.name}`;
-  document.getElementById("oauthMessage").textContent = provider.note;
-  document.getElementById("oauthProviderName").textContent = provider.name;
-  document.getElementById("oauthContinueBtn").href = provider.url;
-  modal.hidden = false;
-  document.getElementById("oauthCloseBtn").focus();
+  // Social OAuth requires a configured OAuth app (client_id, redirect_uri).
+  // Without that setup, redirect to Google/GitHub just fails with Error 400.
+  // Show a friendly message instead of a broken redirect.
+  showMessage(
+    `${provider.name} sign-in is not configured for this deployment. Please register with your email and password instead.`,
+    true
+  );
 }
 
 function closeOauthModal() {

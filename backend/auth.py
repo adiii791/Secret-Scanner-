@@ -149,8 +149,8 @@ def register():
     data = request.get_json(silent=True) or {}
     name = data.get("name", "")
     email = data.get("email", "")
-    phone = data.get("phone", "")
-    otp = data.get("otp", "")
+    phone = data.get("phone", "") or ""   # optional
+    otp = data.get("otp", "") or ""       # optional
     password = data.get("password", "")
 
     if not all(isinstance(v, str) for v in (name, email, phone, otp, password)):
@@ -161,25 +161,26 @@ def register():
     phone = normalize_phone(phone)
     otp = otp.strip()
 
-    if not name or not email or not phone or not otp or not password:
-        return jsonify({"error": "name, email, phone, otp and password are required"}), 400
+    if not name or not email or not password:
+        return jsonify({"error": "name, email and password are required"}), 400
     if len(password) < 6:
         return jsonify({"error": "password must be at least 6 characters"}), 400
 
-    # Verify OTP — try email identifier first, then phone.
-    identifier = email if OtpRequest.query.filter_by(identifier=email).first() else phone
-    if not _verify_and_consume_otp(identifier, otp):
-        return jsonify({"error": "Invalid or expired OTP"}), 400
+    # OTP verification — only required if user actually requested one
+    if otp:
+        identifier = email if OtpRequest.query.filter_by(identifier=email).first() else phone
+        if not _verify_and_consume_otp(identifier, otp):
+            return jsonify({"error": "Invalid or expired OTP"}), 400
 
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already registered"}), 409
-    if User.query.filter_by(phone=phone).first():
+    if phone and User.query.filter_by(phone=phone).first():
         return jsonify({"error": "Phone number already registered"}), 409
 
     new_user = User(
         name=name,
         email=email,
-        phone=phone,
+        phone=phone if phone else None,
         password_hash=generate_password_hash(password),
     )
     db.session.add(new_user)
